@@ -1,24 +1,54 @@
-import logo from './logo.svg';
+import { useCallback, useState } from 'react';
+import { useRef } from 'react';
 import './App.css';
+import ImageBox from './components/ImageBox';
+import {useDropzone} from 'react-dropzone'
+
 
 function App() {
+
+  const inpRef = useRef()
+  const [imageList, setImageList] = useState([])
+console.log(imageList)
+  const onDrop = useCallback((acceptedFiles)=>{
+              if(acceptedFiles){
+                for(const file of acceptedFiles){
+                const reader = new FileReader()
+                reader.readAsDataURL(file)
+                reader.onloadend = (e)=>{
+                    setImageList((imageList)=>{return [...imageList, e.target?.result]})
+                }}
+                }
+                
+  },[])
+
+  const {getRootProps, getInputProps} = useDropzone({onDrop})
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+  <section className="container-box">
+        <div className={"initial-box " + (imageList.length > 0 && 'row')}>
+          {
+            imageList.length === 0 && <div className="text-center">
+            there is no image <br/>
+            please add some images
+        </div>
+          }
+
+            {
+              imageList.map((image, index)=>{return <ImageBox key={image + index} src={image}></ImageBox>})
+              
+            }
+            <div className="plus-box" {...getRootProps()} 
+            >
+              <input type="file" ref={inpRef}
+              {...getInputProps()}
+            />
+
+                +
+            </div>
+
+        </div>
+  </section>
   );
 }
 
